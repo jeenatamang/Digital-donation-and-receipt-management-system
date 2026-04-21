@@ -1,13 +1,15 @@
 # Python
-venv/
 __pycache__/
+*.pyc
+venv/
+env/
 
 # Database
 *.db
 
-# Env files
-backend/.env
+# Environment
+.env
 
-# Frontend
+# Node
 node_modules/
 dist/
