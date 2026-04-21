@@ -1,38 +1,35 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+@theme {
+  --color-bg-primary: #F7F2E8;
+  --color-bg-card: #FFFFFF;
+  --color-bg-dark: #1A1008;
+  --color-bg-sidebar: #F0E8D5;
+  --color-saffron: #D4780A;
+  --color-burgundy: #6B2737;
+  --color-gold: #B8963C;
+  --color-trust-green: #2D6A4F;
+  --color-trust-green-light: #EAF4EE;
+  --color-alert-red: #C0392B;
+  --color-text-primary: #1C1208;
+  --color-text-secondary: #5A4030;
+  --color-text-muted: #8C7B6B;
+  --color-border-light: #E2D9C8;
 
-:root {
-  --bg-primary: #F7F2E8;        
-  --bg-card: #FFFFFF;           
-  --bg-dark: #1A1008;           
-  --bg-sidebar: #F0E8D5;        
-  --saffron: #D4780A;           
-  --burgundy: #6B2737;          
-  --gold: #B8963C;              
-  --trust-green: #2D6A4F;       
-  --trust-green-light: #EAF4EE; 
-  --alert-red: #C0392B;         
-  --text-primary: #1C1208;
-  --text-secondary: #5A4030;
-  --text-muted: #8C7B6B;
-  --border-light: #E2D9C8;
-  --border-input: #CCC0A8;      
+  --font-sans: 'Inter', sans-serif;
+  --font-heading: 'Poppins', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
 }
 
-body {
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-  font-family: 'Inter', sans-serif; 
-  margin: 0;
-  padding: 0;
-}
-
-h1, h2, h3, h4, h5 {
-  font-family: 'Poppins', sans-serif; 
-  color: var(--burgundy);
-}
-
-button {
-  font-family: 'Poppins', sans-serif;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
+@layer base {
+  body {
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
+  }
+  
+  h1, h2, h3, h4, h5 {
+    font-family: var(--font-heading);
+    color: var(--color-burgundy);
+  }
 }

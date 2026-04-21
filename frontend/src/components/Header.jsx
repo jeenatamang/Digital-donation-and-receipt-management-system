@@ -31,7 +31,6 @@ export default function Header({ toggleSidebar }) {
         alignItems: 'center',
         gap: '8px'
       }}>
-        {/* CORRECTED: Removed the circle wrapper and used {logo} variable */}
         <img 
           src={logo} 
           alt="Monastery logo" 

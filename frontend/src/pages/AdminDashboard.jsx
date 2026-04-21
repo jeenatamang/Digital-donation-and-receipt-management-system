@@ -5,15 +5,13 @@ import Footer from '../components/Footer';
 
 export default function AdminDashboard() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  
-  // 1. Set up empty arrays for our REAL data
   const [donations, setDonations] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchDonations = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:8000/get-donations', {
+        const response = await fetch('http://localhost:8000/get-donations', {
           credentials: 'include' 
         });
         
@@ -21,7 +19,7 @@ export default function AdminDashboard() {
           const data = await response.json();
           setDonations(data.donations); 
         } else {
-          console.error("Failed to fetch donations. Are you logged in as Admin?");
+          console.error("Failed to fetch donations.");
         }
       } catch (error) {
         console.error("Server connection error:", error);
@@ -33,82 +31,78 @@ export default function AdminDashboard() {
     fetchDonations();
   }, []);
   
-
   return (
-    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', backgroundColor: 'var(--bg-primary)' }}>
+    <div className="flex h-screen overflow-hidden bg-bg-primary">
       
       <Sidebar isOpen={isSidebarOpen} />
 
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <div className="flex-1 flex flex-col overflow-hidden">
         <Header toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
 
-        <main style={{ flex: 1, padding: '40px', overflowY: 'auto' }}>
+        <main className="flex-1 p-10 overflow-y-auto">
           
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-            <h1 style={{ margin: 0, fontSize: '2.2rem' }}>Overview</h1>
-            <button style={{ 
-              backgroundColor: 'var(--saffron)', color: '#FFF', border: 'none', padding: '12px 24px', 
-              borderRadius: '4px', fontSize: '1rem', fontWeight: 600 
-            }}>
+          <div className="flex justify-between items-center mb-7.5">
+            <h1 className="m-0 text-4xl">Overview</h1>
+            <button className="bg-saffron text-white border-none py-3 px-6 rounded text-base font-semibold">
               + Add Donation
             </button>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginBottom: '40px' }}>
+          <div className="grid grid-cols-4 gap-5 mb-10">
             {[
-              { label: 'Total Donations', value: 'NPR 1,245,000', color: 'var(--burgundy)' },
-              { label: 'This Month', value: 'NPR 45,000', color: 'var(--text-primary)' },
-              { label: 'Verified Receipts', value: '142', color: 'var(--trust-green)' },
-              { label: 'Pending Verification', value: '3', color: 'var(--saffron)' }
+              { label: 'Total Donations', value: 'NPR 1,245,000', textClass: 'text-burgundy', borderClass: 'border-burgundy' },
+              { label: 'This Month', value: 'NPR 45,000', textClass: 'text-text-primary', borderClass: 'border-text-primary' },
+              { label: 'Verified Receipts', value: '142', textClass: 'text-trust-green', borderClass: 'border-trust-green' },
+              { label: 'Pending Verification', value: '3', textClass: 'text-saffron', borderClass: 'border-saffron' }
             ].map((stat, i) => (
-              <div key={i} style={{ backgroundColor: 'var(--bg-card)', padding: '20px', borderRadius: '8px', borderTop: `3px solid ${stat.color}`, boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
-                <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600, marginBottom: '8px', textTransform: 'uppercase' }}>{stat.label}</div>
-                <div style={{ fontSize: '1.8rem', color: stat.color, fontWeight: 700 }}>{stat.value}</div>
+              <div key={i} className={`bg-bg-card p-5 rounded-lg border-t-3 ${stat.borderClass} shadow-sm`}>
+                <div className="text-sm text-text-muted font-semibold mb-2 uppercase">{stat.label}</div>
+                <div className={`text-3xl font-bold ${stat.textClass}`}>{stat.value}</div>
               </div>
             ))}
           </div>
 
-          <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.03)', overflow: 'hidden' }}>
-            <div style={{ padding: '20px', borderBottom: '1px solid var(--border-light)' }}>
-              <h3 style={{ margin: 0, fontSize: '1.3rem', color: 'var(--text-primary)' }}>Recent Transactions</h3>
+          <div className="bg-bg-card rounded-lg shadow-sm overflow-hidden">
+            <div className="p-5 border-b border-border-light">
+              <h3 className="m-0 text-xl text-text-primary">Recent Transactions</h3>
             </div>
             
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-              <thead style={{ backgroundColor: 'var(--bg-sidebar)', fontSize: '0.85rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>
+            <table className="w-full border-collapse text-left">
+              <thead className="bg-bg-sidebar text-sm text-text-secondary uppercase">
                 <tr>
-                  <th style={{ padding: '15px 20px', fontWeight: 600 }}>Receipt ID</th>
-                  <th style={{ padding: '15px 20px', fontWeight: 600 }}>Donor Name</th>
-                  <th style={{ padding: '15px 20px', fontWeight: 600 }}>Date</th>
-                  <th style={{ padding: '15px 20px', fontWeight: 600 }}>Amount</th>
-                  <th style={{ padding: '15px 20px', fontWeight: 600 }}>Status</th>
+                  <th className="py-3.75 px-5 font-semibold">Receipt ID</th>
+                  <th className="py-3.75 px-5 font-semibold">Donor Name</th>
+                  <th className="py-3.75 px-5 font-semibold">Date</th>
+                  <th className="py-3.75 px-5 font-semibold">Amount</th>
+                  <th className="py-3.75 px-5 font-semibold">Status</th>
                 </tr>
               </thead>
-              <tbody style={{ fontSize: '0.95rem' }}>
+              <tbody className="text-base">
                 {isLoading ? (
                   <tr>
-                    <td colSpan="5" style={{ padding: '30px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                    <td colSpan="5" className="p-7.5 text-center text-text-muted">
                       Loading records...
                     </td>
                   </tr>
                 ) : donations.length === 0 ? (
                   <tr>
-                    <td colSpan="5" style={{ padding: '30px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                    <td colSpan="5" className="p-7.5 text-center text-text-muted">
                       No donations found in the database.
                     </td>
                   </tr>
                 ) : (
                   donations.map((dnt, i) => (
-                    <tr key={i} style={{ borderBottom: '1px solid var(--border-light)', backgroundColor: i % 2 === 0 ? '#FFFFFF' : '#FAF6EE' }}>
-                      <td style={{ padding: '15px 20px', fontFamily: 'JetBrains Mono', color: 'var(--text-muted)', fontSize: '0.9rem' }}>{dnt.id || dnt.receipt_id}</td>
-                      <td style={{ padding: '15px 20px', fontWeight: 500 }}>{dnt.donor_name || dnt.name}</td>
-                      <td style={{ padding: '15px 20px', color: 'var(--text-secondary)' }}>{dnt.date}</td>
-                      <td style={{ padding: '15px 20px', fontWeight: 600 }}>NPR {dnt.amount}</td>
-                      <td style={{ padding: '15px 20px' }}>
-                        <span style={{ 
-                          backgroundColor: dnt.status === 'Verified' ? 'var(--trust-green-light)' : '#FEF3E1', 
-                          color: dnt.status === 'Verified' ? 'var(--trust-green)' : 'var(--saffron)',
-                          padding: '4px 10px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 600
-                        }}>
+                    <tr key={i} className={`border-b border-border-light ${i % 2 === 0 ? 'bg-white' : 'bg-[#FAF6EE]'}`}>
+                      <td className="py-3.75 px-5 font-mono text-text-muted text-sm">{dnt.id || dnt.receipt_id}</td>
+                      <td className="py-3.75 px-5 font-medium">{dnt.donor_name || dnt.name}</td>
+                      <td className="py-3.75 px-5 text-text-secondary">{dnt.date}</td>
+                      <td className="py-3.75 px-5 font-semibold">NPR {dnt.amount}</td>
+                      <td className="py-3.75 px-5">
+                        <span className={`py-1 px-2.5 rounded-full text-xs font-semibold ${
+                          dnt.status === 'Verified' 
+                            ? 'bg-trust-green-light text-trust-green' 
+                            : 'bg-[#FEF3E1] text-saffron'
+                        }`}>
                           {dnt.status || 'Pending'}
                         </span>
                       </td>

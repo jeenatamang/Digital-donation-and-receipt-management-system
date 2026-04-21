@@ -1,6 +1,5 @@
 import { useState } from 'react';
 
-// 1. ADD 'onLoginSuccess' inside the parentheses here
 export default function AuthPage({ onLoginSuccess }) {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
@@ -11,7 +10,7 @@ export default function AuthPage({ onLoginSuccess }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const url = isLogin ? 'http://127.0.0.1:8000/login' : 'http://127.0.0.1:8000/register';
+    const url = isLogin ? 'http://localhost:8000/login' : 'http://localhost:8000/register';
     const bodyData = isLogin ? { email, password } : { name, email, password };
 
     try {
@@ -29,11 +28,12 @@ export default function AuthPage({ onLoginSuccess }) {
         
         if (!isLogin) {
           setMessage("You have successfully registered as a user.");
-          setEmail(''); setPassword(''); setName('');
+          setEmail(''); 
+          setPassword(''); 
+          setName('');
         } else {
           setMessage("Log in successful. Redirecting to dashboard...");
           
-          // 2. ADD THIS: Wait 1 second so they see the message, then switch pages!
           setTimeout(() => {
             if (onLoginSuccess) onLoginSuccess();
           }, 1000);
@@ -47,90 +47,88 @@ export default function AuthPage({ onLoginSuccess }) {
       setMessage('System unavailable. Please try again later.');
     }
   };
+
   return (
-    <div style={{ padding: '60px 20px', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div className="py-15 px-5 min-h-screen flex items-center justify-center">
       
-      <div style={{ 
-        backgroundColor: 'var(--bg-card)', 
-        padding: '40px', 
-        borderRadius: '8px', 
-        boxShadow: '0 10px 25px rgba(0,0,0,0.05)',
-        borderTop: '4px solid var(--gold)',
-        maxWidth: '450px',
-        width: '100%'
-      }}>
+      <div className="bg-bg-card p-10 rounded-lg shadow-[0_10px_25px_rgba(0,0,0,0.05)] border-t-4 border-gold max-w-112.5 w-full">
         
-        <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-          <div style={{ 
-            fontFamily: 'Cinzel, serif', 
-            fontSize: '0.80rem', 
-            color: 'var(--saffron)', 
-            letterSpacing: '1px', 
-            textTransform: 'uppercase', 
-            marginBottom: '15px',
-            fontWeight: 600,
-            lineHeight: '1.4'
-          }}>
+        <div className="text-center mb-7.5">
+          <div className="font-['Cinzel',serif] text-[0.80rem] text-saffron tracking-[1px] uppercase mb-3.5 font-semibold leading-[1.4]">
             Secure Digital Donation & Receipt Management System
           </div>
 
-          <h1 style={{ margin: '0 0 10px 0', fontSize: '2.2rem', color: 'var(--burgundy)' }}>
+          <h1 className="m-0 mb-2.5 text-[2.2rem] text-burgundy">
             {isLogin ? 'Welcome Back' : 'Create an Account'}
           </h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', margin: 0 }}>
+          <p className="text-text-secondary text-base m-0">
             {isLogin ? 'Please log in to continue.' : 'Create your secure account.'}
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           
           {!isLogin && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'left' }}>
-              <label style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: 600 }}>FULL NAME</label>
-              <input type="text" required value={name} onChange={(e) => setName(e.target.value)} 
-                style={{ padding: '12px', border: '1px solid var(--border-input)', borderRadius: '4px', fontFamily: 'Lora', fontSize: '1rem' }} />
+            <div className="flex flex-col gap-2 text-left">
+              <label className="text-[0.9rem] text-text-secondary font-semibold">FULL NAME</label>
+              <input 
+                type="text" 
+                required 
+                value={name} 
+                onChange={(e) => setName(e.target.value)} 
+                className="p-3 border border-border-input rounded font-['Lora'] text-base"
+              />
             </div>
           )}
           
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'left' }}>
-            <label style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: 600 }}>EMAIL ADDRESS</label>
-            <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} 
-              style={{ padding: '12px', border: '1px solid var(--border-input)', borderRadius: '4px', fontFamily: 'Lora', fontSize: '1rem' }} />
+          <div className="flex flex-col gap-2 text-left">
+            <label className="text-[0.9rem] text-text-secondary font-semibold">EMAIL ADDRESS</label>
+            <input 
+              type="email" 
+              required 
+              value={email} 
+              onChange={(e) => setEmail(e.target.value)} 
+              className="p-3 border border-border-input rounded font-['Lora'] text-base"
+            />
           </div>
           
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'left' }}>
-            <label style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: 600 }}>PASSWORD</label>
-            <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} 
-              style={{ padding: '12px', border: '1px solid var(--border-input)', borderRadius: '4px', fontFamily: 'Lora', fontSize: '1rem' }} />
+          <div className="flex flex-col gap-2 text-left">
+            <label className="text-[0.9rem] text-text-secondary font-semibold">PASSWORD</label>
+            <input 
+              type="password" 
+              required 
+              value={password} 
+              onChange={(e) => setPassword(e.target.value)} 
+              className="p-3 border border-border-input rounded font-['Lora'] text-base"
+            />
           </div>
           
-          <button type="submit" style={{ 
-            marginTop: '10px', padding: '14px', fontSize: '1.1rem', backgroundColor: 'var(--saffron)', 
-            color: '#FFF', border: 'none', borderRadius: '4px', letterSpacing: '1px', fontWeight: 600 
-          }}>
+          <button 
+            type="submit" 
+            className="mt-2.5 p-3.5 text-[1.1rem] bg-saffron text-white border-none rounded tracking-[1px] font-semibold"
+          >
             {isLogin ? 'Log In' : 'Create Account'}
           </button>
         </form>
 
         {message && (
-          <div style={{ 
-            marginTop: '25px', padding: '15px', borderRadius: '4px', textAlign: 'center',
-            backgroundColor: isSuccess ? 'var(--trust-green-light)' : '#FDECEA',
-            color: isSuccess ? 'var(--trust-green)' : 'var(--alert-red)',
-            border: `1px solid ${isSuccess ? 'var(--trust-green)' : 'var(--alert-red)'}`,
-            fontFamily: 'Lora', fontWeight: 600
-          }}>
+          <div className={`mt-6.25 p-3.75 rounded text-center font-['Lora'] font-semibold border ${
+            isSuccess 
+              ? 'bg-trust-green-light text-trust-green border-trust-green' 
+              : 'bg-[#FDECEA] text-alert-red border-alert-red'
+          }`}>
             {message}
           </div>
         )}
 
-        <div style={{ marginTop: '30px', textAlign: 'center', borderTop: '1px solid var(--border-light)', paddingTop: '20px' }}>
-          <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+        <div className="mt-7.5 text-center border-t border-border-light pt-5">
+          <span className="text-text-muted text-[0.9rem]">
             {isLogin ? "Don't have an account? " : "Already registered? "}
           </span>
           <span 
             onClick={() => setIsLogin(!isLogin)} 
-            style={{ color: 'var(--saffron)', fontWeight: 600, cursor: 'pointer', fontFamily: 'Lora' }}>
+            className="text-saffron font-semibold cursor-pointer font-['Lora']"
+          >
             {isLogin ? "Register here." : "Log in here."}
           </span>
         </div>
