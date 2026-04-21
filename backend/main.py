@@ -43,7 +43,6 @@ def setup_database():
     conn = get_db()
     cursor = conn.cursor()
     
-    # 1. Create Users Table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS Users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -53,8 +52,7 @@ def setup_database():
             role TEXT NOT NULL
         )
     ''')
-    
-    # 2. Create Donations Table (Notice the new 'status' column!)
+
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS Donations (
             id INTEGER PRIMARY KEY AUTOINCREMENT,

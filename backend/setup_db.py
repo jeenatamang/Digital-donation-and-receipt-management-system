@@ -2,11 +2,9 @@ import sqlite3
 import bcrypt
 
 def create_database():
-    # Connect to SQLite (this will create the file 'monastery.db' if it doesn't exist)
     conn = sqlite3.connect('monastery.db')
     cursor = conn.cursor()
 
-    # 1. Create the Users Table
     print("Creating Users table...")
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS Users (
@@ -18,7 +16,6 @@ def create_database():
     )
     ''')
 
-    # 2. Create the Donations Table
     print("Creating Donations table...")
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS Donations (
@@ -30,16 +27,13 @@ def create_database():
     )
     ''')
 
-    # 3. Seed the initial Admin Account
-    # We must seed the admin here because admins cannot be created through the public UI
+
     admin_email = "admin@monastery.com"
-    admin_password = "adminpassword123" # The default password
+    admin_password = "adminpassword123" 
     
-    # Hash the password using Bcrypt
     salt = bcrypt.gensalt()
     hashed_password = bcrypt.hashpw(admin_password.encode('utf-8'), salt).decode('utf-8')
 
-    # Check if the admin already exists so we don't accidentally create duplicates
     cursor.execute("SELECT email FROM Users WHERE email = ?", (admin_email,))
     existing_admin = cursor.fetchone()
 
@@ -52,7 +46,6 @@ def create_database():
     else:
         print("Admin account already exists. Skipping seed.")
 
-    # Save changes and close the connection
     conn.commit()
     conn.close()
     print("\n✅ Success! monastery.db is fully set up and ready to use.")
