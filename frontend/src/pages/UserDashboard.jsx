@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Header from '../components/Header'; 
 import Footer from '../components/Footer';
+import { jsPDF } from "jspdf";
 
 export default function UserDashboard() {
   const [myDonations, setMyDonations] = useState([]);
@@ -54,7 +55,7 @@ export default function UserDashboard() {
         setMessage({ type: 'success', text: "Donation submitted! It is currently Pending." });
         setAmount('');
         setShowForm(false);
-        
+
         const refreshed = await fetch('http://localhost:8000/get-donations', {
           credentials: 'include'
         });
@@ -68,6 +69,64 @@ export default function UserDashboard() {
       }
     } catch (error) {
       setMessage({ type: 'error', text: "System unavailable. Please try again later." });
+    }
+  };
+
+  const handleDownloadReceipt = async (donationId) => {
+    try {
+      const response = await fetch(`http://localhost:8000/receipt/${donationId}`, {
+        credentials: 'include' 
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const receipt = data.receipt;
+        const doc = new jsPDF();
+
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(22);
+        doc.setTextColor(180, 0, 0); 
+        doc.text("THUPTEN DONGAK MONASTERY", 105, 20, { align: "center" });
+
+        doc.setFontSize(14);
+        doc.setTextColor(100, 100, 100);
+        doc.text("OFFICIAL DONATION RECEIPT", 105, 30, { align: "center" });
+
+
+        doc.setLineWidth(0.5);
+        doc.line(20, 35, 190, 35);
+
+
+        doc.setFontSize(12);
+        doc.setTextColor(0, 0, 0);
+        doc.setFont("helvetica", "normal");
+        
+        doc.text(`Receipt Number: #${receipt.id}`, 20, 50);
+        doc.text(`Date: ${receipt.date}`, 20, 60);
+        doc.text(`Donor Name: ${receipt.name}`, 20, 70);
+        doc.text(`Donor Email: ${receipt.email}`, 20, 80);
+
+        doc.setFillColor(245, 245, 245);
+        doc.rect(20, 95, 170, 30, "F"); 
+        
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(16);
+        doc.text("Donation Amount:", 30, 115);
+        
+        doc.setTextColor(0, 128, 0); 
+        doc.text(`Rs.${receipt.amount.toFixed(2)} `, 120, 115);
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "italic");
+        doc.text("Thank you for your generous support to the Sangha.", 105, 150, { align: "center" });
+
+        doc.save(`Monastery_Receipt_${receipt.id}.pdf`);
+      } else {
+        alert("Failed to fetch receipt. Make sure you are authorized!");
+      }
+    } catch (error) {
+      alert("System unavailable. Please try again later.");
     }
   };
 
@@ -140,6 +199,8 @@ export default function UserDashboard() {
                       <th className="py-3 px-5 font-semibold">Date</th>
                       <th className="py-3 px-5 font-semibold">Amount</th>
                       <th className="py-3 px-5 font-semibold">Status</th>
+
+                      <th className="py-3 px-5 font-semibold text-center">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -148,6 +209,7 @@ export default function UserDashboard() {
                         <td className="py-3 px-5 font-mono text-text-muted text-sm">{dnt.id}</td>
                         <td className="py-3 px-5 text-text-secondary">{dnt.date}</td>
                         <td className="py-3 px-5 font-semibold">NPR {dnt.amount}</td>
+                        
                         <td className="py-3 px-5">
                           <span className={`py-1 px-2.5 rounded-full text-xs font-semibold ${
                             dnt.status === 'Verified'
@@ -157,6 +219,20 @@ export default function UserDashboard() {
                             {dnt.status || 'Pending'}
                           </span>
                         </td>
+
+                        <td className="py-3 px-5 border-b text-center">
+                          {dnt.status === 'Verified' ? (
+                            <button 
+                              onClick={() => handleDownloadReceipt(dnt.id)}
+                              className="bg-blue-600 text-white px-3 py-1 rounded text-sm font-semibold hover:bg-blue-800 transition cursor-pointer"
+                            >
+                              Download Receipt
+                            </button>
+                          ) : (
+                            <span className="text-gray-500 italic">Pending...</span>
+                          )}
+                        </td>
+
                       </tr>
                     ))}
                   </tbody>

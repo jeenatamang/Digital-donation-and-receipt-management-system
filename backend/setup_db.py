@@ -51,7 +51,7 @@ def create_database():
         VALUES (?, ?, ?, ?)
         ''', ("Super Admin", admin_email, hashed_password, "admin"))
     else:
-        # ✅ FIXED: instead of skipping, we now update the password
+
         print("Admin account exists. Updating password to match .env...")
         cursor.execute('''
         UPDATE Users SET password_hash = ? WHERE email = ?
@@ -59,7 +59,7 @@ def create_database():
 
     conn.commit()
     conn.close()
-    print("\n✅ Success! monastery.db is fully set up and ready to use.")
+    print("\n Success! monastery.db is fully set up and ready to use.")
 
 if __name__ == "__main__":
     create_database()

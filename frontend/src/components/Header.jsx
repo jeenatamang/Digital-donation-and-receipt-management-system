@@ -41,12 +41,15 @@ export default function Header({ toggleSidebar }) {
         </span>
       </div>
 
-      <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-2">
+      <div className="absolute left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-1">
         <img
           src={logo}
           alt="Monastery logo"
           className="h-11 object-contain"
         />
+        <span className="text-[11px] font-bold text-gray-600 uppercase tracking-wider">
+          Thupten Dongak Choeling Sangha
+        </span>
       </div>
 
       <div className="flex items-center gap-4">

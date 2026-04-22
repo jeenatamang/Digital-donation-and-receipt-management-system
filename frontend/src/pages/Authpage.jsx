@@ -37,7 +37,7 @@ export default function AuthPage({ onLoginSuccess }) {
         } else {
           setMessage("Log in successful. Redirecting to dashboard...");
           localStorage.setItem('userRole', data.role);
-           console.log("Role received:", data.role); // ← add this
+           console.log("Role received:", data.role); 
           console.log("Full response:", data);  
           
           setTimeout(() => {

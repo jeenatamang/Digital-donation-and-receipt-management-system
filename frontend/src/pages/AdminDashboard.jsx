@@ -14,6 +14,24 @@ export default function AdminDashboard() {
   const [selectedDonationId, setSelectedDonationId] = useState(null);
   const [verifyingId, setVerifyingId] = useState(null);
 
+
+  const verifiedDonations = donations.filter(d => d.status === 'Verified');
+  
+
+  const totalDonationsAmount = verifiedDonations.reduce((sum, d) => sum + d.amount, 0);
+  
+
+  const currentMonth = new Date().getMonth();
+  const currentYear = new Date().getFullYear();
+  const thisMonthAmount = verifiedDonations.filter(d => {
+    const dDate = new Date(d.date);
+    return dDate.getMonth() === currentMonth && dDate.getFullYear() === currentYear;
+  }).reduce((sum, d) => sum + d.amount, 0);
+
+  const verifiedCount = verifiedDonations.length;
+
+  const pendingCount = donations.filter(d => d.status === 'Pending' || !d.status).length;
+
   const fetchDonations = async () => {
     setIsLoading(true);
     try {
@@ -88,19 +106,35 @@ export default function AdminDashboard() {
                 </button>
               </div>
 
-              <div className="grid grid-cols-4 gap-5 mb-10">
-                {[
-                  { label: 'Total Donations', value: 'NPR 1,245,000', textClass: 'text-burgundy', borderClass: 'border-burgundy' },
-                  { label: 'This Month', value: 'NPR 45,000', textClass: 'text-text-primary', borderClass: 'border-text-primary' },
-                  { label: 'Verified Receipts', value: '142', textClass: 'text-trust-green', borderClass: 'border-trust-green' },
-                  { label: 'Pending Verification', value: '3', textClass: 'text-saffron', borderClass: 'border-saffron' }
-                ].map((stat, i) => (
-                  <div key={i} className={`bg-bg-card p-5 rounded-lg border-t-3 ${stat.borderClass} shadow-sm`}>
-                    <div className="text-sm text-text-muted font-semibold mb-2 uppercase">{stat.label}</div>
-                    <div className={`text-3xl font-bold ${stat.textClass}`}>{stat.value}</div>
-                  </div>
-                ))}
-              </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            
+
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 border-t-4 border-t-[#5c1c24] p-6">
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Total Donations</p>
+              <p className="text-3xl font-bold text-[#5c1c24]">
+                NPR {totalDonationsAmount.toLocaleString(undefined, { minimumFractionDigits: 0 })}
+              </p>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 border-t-4 border-t-black p-6">
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">This Month</p>
+              <p className="text-3xl font-bold text-black">
+                NPR {thisMonthAmount.toLocaleString(undefined, { minimumFractionDigits: 0 })}
+              </p>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 border-t-4 border-t-[#2d7a5d] p-6">
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Verified Receipts</p>
+              <p className="text-3xl font-bold text-[#2d7a5d]">{verifiedCount}</p>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 border-t-4 border-t-[#d47814] p-6">
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Pending Verification</p>
+              <p className="text-3xl font-bold text-[#d47814]">{pendingCount}</p>
+            </div>
+
+          </div>
 
               <div className="bg-bg-card rounded-lg shadow-sm overflow-hidden">
                 <div className="p-5 border-b border-border-light">
