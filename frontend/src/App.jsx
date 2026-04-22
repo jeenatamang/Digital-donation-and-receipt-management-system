@@ -1,19 +1,25 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import AuthPage from './pages/AuthPage';
 import AdminDashboard from './pages/AdminDashboard';
 
-function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  return (
-    <div>
-
-      {isAuthenticated ? (
-        <AdminDashboard />
-      ) : (
-        <AuthPage onLoginSuccess={() => setIsAuthenticated(true)} />
-      )}
-    </div>
+export default function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    localStorage.getItem('isLoggedIn') === 'true'
   );
-}
 
-export default App;
+  const handleLoginSuccess = () => {
+    localStorage.setItem('isLoggedIn', 'true');
+    setIsAuthenticated(true);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('isLoggedIn');
+    setIsAuthenticated(false);
+  };
+
+  if (isAuthenticated) {
+    return <AdminDashboard onLogout={handleLogout} />;
+  }
+
+  return <AuthPage onLoginSuccess={handleLoginSuccess} />;
+}

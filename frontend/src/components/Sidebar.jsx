@@ -1,25 +1,50 @@
-export default function Sidebar({ isOpen }) {
+export default function Sidebar({ isOpen, currentView, setCurrentView }) {
   return (
-    <div style={{ 
-      width: isOpen ? '260px' : '0px', 
-      backgroundColor: 'var(--bg-dark)', 
-      transition: 'width 0.3s ease',
-      overflow: 'hidden',
-      display: 'flex', 
-      flexDirection: 'column',
-      whiteSpace: 'nowrap'
-    }}>
-      <div style={{ padding: '30px 20px', textAlign: 'center', borderBottom: '1px solid var(--text-secondary)' }}>
-        <h2 style={{ color: 'var(--gold)', margin: '0 0 5px 0', fontSize: '1.5rem' }}>Monastery Admin</h2>
-        <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', letterSpacing: '1px', textTransform: 'uppercase' }}>Secure Portal</span>
+    <aside className={`bg-[#1A2332] text-white h-full flex flex-col transition-all duration-300 overflow-hidden ${isOpen ? 'w-64' : 'w-0'}`}>
+      
+      <div className="p-6 border-b border-gray-700">
+        <h2 className="text-2xl font-bold text-saffron text-center m-0">Monastery Admin</h2>
+        <p className="text-gray-400 text-xs text-center mt-2 tracking-widest uppercase">Secure Portal</p>
       </div>
 
-      <nav style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '30px 20px', fontSize: '1rem', fontWeight: 500 }}>
-        <div style={{ color: '#FFF', cursor: 'pointer', borderLeft: '3px solid var(--saffron)', paddingLeft: '10px' }}>Dashboard Overview</div>
-        <div style={{ color: 'var(--text-muted)', cursor: 'pointer', paddingLeft: '13px' }}>Add Donation</div>
-        <div style={{ color: 'var(--text-muted)', cursor: 'pointer', paddingLeft: '13px' }}>Digital Receipts</div>
-        <div style={{ color: 'var(--text-muted)', cursor: 'pointer', paddingLeft: '13px' }}>Donor Directory</div>
+
+      <nav className="flex-1 mt-6">
+
+        <button 
+          onClick={() => setCurrentView('overview')}
+          className={`w-full text-left px-8 py-4 text-base font-medium transition-colors cursor-pointer border-none block ${
+            currentView === 'overview' 
+              ? 'border-l-4 border-saffron text-white bg-white/5' 
+              : 'text-gray-400 hover:text-white bg-transparent border-l-4 border-transparent hover:bg-white/5'
+          }`}
+        >
+          Dashboard Overview
+        </button>
+
+        <button 
+          onClick={() => setCurrentView('add')}
+          className={`w-full text-left px-8 py-4 text-base font-medium transition-colors cursor-pointer border-none block ${
+            currentView === 'add' 
+              ? 'border-l-4 border-saffron text-white bg-white/5' 
+              : 'text-gray-400 hover:text-white bg-transparent border-l-4 border-transparent hover:bg-white/5'
+          }`}
+        >
+          Add Donation
+        </button>
+
+
+        <button 
+          onClick={() => setCurrentView('receipts')} 
+          className={`w-full text-left px-8 py-4 text-base font-medium transition-colors cursor-pointer border-none block ${
+            currentView === 'receipts' 
+              ? 'border-l-4 border-saffron text-white bg-white/5' 
+              : 'text-gray-400 hover:text-white bg-transparent border-l-4 border-transparent hover:bg-white/5'
+          }`}
+        >
+          Digital Receipts
+        </button>
+
       </nav>
-    </div>
+    </aside>
   );
 }

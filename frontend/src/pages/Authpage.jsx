@@ -105,7 +105,7 @@ export default function AuthPage({ onLoginSuccess }) {
           
           <button 
             type="submit" 
-            className="mt-2.5 p-3.5 text-[1.1rem] bg-saffron text-white border-none rounded tracking-[1px] font-semibold"
+            className="mt-2.5 p-3.5 text-[1.1rem] bg-saffron text-white border-none rounded tracking-[1px] font-semibold cursor-pointer"
           >
             {isLogin ? 'Log In' : 'Create Account'}
           </button>

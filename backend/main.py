@@ -32,12 +32,16 @@ class LoginRequest(BaseModel):
 class DonationRequest(BaseModel):
     amount: float
     date: str 
+    status: str = "Pending"
+    donor_email: Optional[str] = None
+    donor_name: Optional[str] = None
     donor_id: Optional[int] = None 
 
 def get_db():
     conn = sqlite3.connect('monastery.db')
     conn.row_factory = sqlite3.Row 
     return conn
+
 @app.on_event("startup")
 def setup_database():
     conn = get_db()
@@ -125,29 +129,53 @@ def logout(response: Response):
     response.delete_cookie(key="monastery_session")
     return {"message": "Successfully logged out."}
 
-
-
 @app.post("/add-donation")
 def add_donation(donation: DonationRequest, user: dict = Depends(get_current_user)):
     conn = get_db()
     cursor = conn.cursor()
     
-
-    if user["role"] == "admin":
-        if not donation.donor_id:
-            raise HTTPException(status_code=400, detail="Admin must provide a donor_id")
-        final_donor_id = donation.donor_id
-    else:
-        final_donor_id = user["sub"] 
+    try:
+        if user["role"] == "admin":
+            if donation.donor_email:
+                cursor.execute("SELECT id FROM Users WHERE email = ?", (donation.donor_email,))
+                db_user = cursor.fetchone()
+                
+                if db_user:
+                    final_donor_id = db_user["id"]
+                else:
+                    if not donation.donor_name:
+                        raise HTTPException(status_code=400, detail="Donor name required to create a new user.")
+                    
+                    salt = bcrypt.gensalt()
+                    hashed_pw = bcrypt.hashpw("defaultpass123".encode('utf-8'), salt).decode('utf-8')
+                    
+                    cursor.execute(
+                        "INSERT INTO Users (name, email, password_hash, role) VALUES (?, ?, ?, ?)",
+                        (donation.donor_name, donation.donor_email, hashed_pw, "donor")
+                    )
+                    final_donor_id = cursor.lastrowid
+            elif donation.donor_id:
+                final_donor_id = donation.donor_id
+            else:
+                raise HTTPException(status_code=400, detail="Admin must provide a donor_email or donor_id")
+        else:
+            # Regular donors can only submit donations for themselves
+            final_donor_id = user["sub"] 
+            donation.status = "Pending" # Force self-submitted donations to pending
+            
+        cursor.execute('''
+            INSERT INTO Donations (amount, date, status, donor_id)
+            VALUES (?, ?, ?, ?)
+        ''', (donation.amount, donation.date, donation.status, final_donor_id))
         
-    cursor.execute('''
-        INSERT INTO Donations (amount, date, donor_id)
-        VALUES (?, ?, ?)
-    ''', (donation.amount, donation.date, final_donor_id))
+        conn.commit()
+        return {"message": "Donation added successfully!"}
     
-    conn.commit()
-    conn.close()
-    return {"message": "Donation added successfully!"}
+    except Exception as e:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        conn.close()
 
 @app.get("/get-donations")
 def get_donations(user: dict = Depends(get_current_user)):
@@ -156,11 +184,16 @@ def get_donations(user: dict = Depends(get_current_user)):
     
     if user["role"] == "admin":
         cursor.execute('''
-            SELECT Donations.id, Donations.amount, Donations.date, Users.name as donor_name 
+            SELECT Donations.id, Donations.amount, Donations.date, Donations.status, Users.name as donor_name 
             FROM Donations JOIN Users ON Donations.donor_id = Users.id
+            ORDER BY Donations.date DESC
         ''')
     else:
-        cursor.execute("SELECT id, amount, date FROM Donations WHERE donor_id = ?", (user["sub"],))
+        cursor.execute('''
+            SELECT id, amount, date, status 
+            FROM Donations WHERE donor_id = ? 
+            ORDER BY date DESC
+        ''', (user["sub"],))
         
     donations = [dict(row) for row in cursor.fetchall()]
     conn.close()
@@ -183,7 +216,7 @@ def get_receipt(donation_id: int, user: dict = Depends(get_current_user)):
     conn = get_db()
     cursor = conn.cursor()
     cursor.execute('''
-        SELECT Donations.id, Donations.amount, Donations.date, Users.name, Users.email, Donations.donor_id
+        SELECT Donations.id, Donations.amount, Donations.date, Donations.status, Users.name, Users.email, Donations.donor_id
         FROM Donations JOIN Users ON Donations.donor_id = Users.id
         WHERE Donations.id = ?
     ''', (donation_id,))
@@ -196,7 +229,7 @@ def get_receipt(donation_id: int, user: dict = Depends(get_current_user)):
         
     receipt_dict = dict(receipt)
     
-    if user["role"] != "admin" and receipt_dict["donor_id"] != user["sub"]:
+    if user["role"] != "admin" and str(receipt_dict["donor_id"]) != str(user["sub"]):
         raise HTTPException(status_code=403, detail="Not authorized to view this receipt")
         
     return {"receipt": receipt_dict}

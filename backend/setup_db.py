@@ -1,5 +1,9 @@
 import sqlite3
 import bcrypt
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def create_database():
     conn = sqlite3.connect('monastery.db')
@@ -22,14 +26,17 @@ def create_database():
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         amount REAL NOT NULL,
         date TEXT NOT NULL,
+        status TEXT DEFAULT 'Pending',
         donor_id INTEGER NOT NULL,
         FOREIGN KEY (donor_id) REFERENCES Users (id)
     )
     ''')
 
+    admin_email = os.getenv("ADMIN_EMAIL")
+    admin_password = os.getenv("ADMIN_PASSWORD")
 
-    admin_email = "admin@monastery.com"
-    admin_password = "adminpassword123" 
+    if not admin_email or not admin_password:
+        raise ValueError("Missing admin credentials in environment variables.")
     
     salt = bcrypt.gensalt()
     hashed_password = bcrypt.hashpw(admin_password.encode('utf-8'), salt).decode('utf-8')
