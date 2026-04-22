@@ -12,17 +12,18 @@ export default function AdminDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [currentView, setCurrentView] = useState('overview');
   const [selectedDonationId, setSelectedDonationId] = useState(null);
+  const [verifyingId, setVerifyingId] = useState(null);
 
   const fetchDonations = async () => {
     setIsLoading(true);
     try {
       const response = await fetch('http://localhost:8000/get-donations', {
-        credentials: 'include' 
+        credentials: 'include'
       });
-      
+
       if (response.ok) {
         const data = await response.json();
-        setDonations(data.donations); 
+        setDonations(data.donations);
       } else {
         console.error("Failed to fetch donations.");
       }
@@ -33,20 +34,39 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleVerify = async (donationId) => {
+    setVerifyingId(donationId);
+    try {
+      const response = await fetch(`http://localhost:8000/donations/${donationId}/verify`, {
+        method: 'PUT',
+        credentials: 'include',
+      });
+      if (response.ok) {
+        fetchDonations();
+      } else {
+        console.error('Failed to verify donation.');
+      }
+    } catch (error) {
+      console.error('Server error:', error);
+    } finally {
+      setVerifyingId(null);
+    }
+  };
+
   useEffect(() => {
     fetchDonations();
   }, []);
-  
+
   return (
     <div className="flex h-screen overflow-hidden var(--bg-primary)">
 
-                <div className="print:hidden">
-            <Sidebar 
-              isOpen={isSidebarOpen} 
-              currentView={currentView} 
-              setCurrentView={setCurrentView} 
-            />
-          </div>
+      <div className="print:hidden">
+        <Sidebar
+          isOpen={isSidebarOpen}
+          currentView={currentView}
+          setCurrentView={setCurrentView}
+        />
+      </div>
 
       <div className="flex-1 flex flex-col overflow-hidden">
 
@@ -55,17 +75,17 @@ export default function AdminDashboard() {
         </div>
 
         <main className="flex-1 p-10 overflow-y-auto">
-          
+
           {currentView === 'overview' && (
             <>
               <div className="flex justify-between items-center mb-7.5">
                 <h1 className="m-0 text-4xl">Overview</h1>
-                <button 
-                  onClick={() => setCurrentView('add')} 
+                <button
+                  onClick={() => setCurrentView('add')}
                   className="bg-saffron text-white border-none py-3 px-6 rounded text-base font-semibold cursor-pointer"
                 >
                   + Add Donation
-                </button>  
+                </button>
               </div>
 
               <div className="grid grid-cols-4 gap-5 mb-10">
@@ -86,7 +106,7 @@ export default function AdminDashboard() {
                 <div className="p-5 border-b border-border-light">
                   <h3 className="m-0 text-xl text-text-primary">Recent Transactions</h3>
                 </div>
-                
+
                 <table className="w-full border-collapse text-left">
                   <thead className="bg-bg-sidebar text-sm text-text-secondary uppercase">
                     <tr>
@@ -119,17 +139,22 @@ export default function AdminDashboard() {
                           <td className="py-3.75 px-5 text-text-secondary">{dnt.date}</td>
                           <td className="py-3.75 px-5 font-semibold">NPR {dnt.amount}</td>
                           <td className="py-3.75 px-5">
-                            <span className={`py-1 px-2.5 rounded-full text-xs font-semibold ${
-                              dnt.status === 'Verified' 
-                                ? 'bg-trust-green-light text-trust-green' 
-                                : 'bg-[#FEF3E1] text-saffron'
-                            }`}>
-                              {dnt.status || 'Pending'}
-                            </span>
+                            {dnt.status === 'Verified' ? (
+                              <span className="py-1 px-2.5 rounded-full text-xs font-semibold bg-trust-green-light text-trust-green">
+                                Verified
+                              </span>
+                            ) : (
+                              <button
+                                onClick={() => handleVerify(dnt.id || dnt.receipt_id)}
+                                disabled={verifyingId === (dnt.id || dnt.receipt_id)}
+                                className="py-1 px-2.5 rounded-full text-xs font-semibold bg-[#FEF3E1] text-saffron border border-saffron cursor-pointer hover:bg-saffron hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                {verifyingId === (dnt.id || dnt.receipt_id) ? 'Verifying...' : 'Pending'}
+                              </button>
+                            )}
                           </td>
-
                           <td className="py-3.75 px-5 text-right">
-                            <button 
+                            <button
                               onClick={() => {
                                 setSelectedDonationId(dnt.id || dnt.receipt_id);
                                 setCurrentView('receipt');
@@ -149,18 +174,19 @@ export default function AdminDashboard() {
           )}
 
           {currentView === 'add' && (
-            <AddDonation 
-              onCancel={() => setCurrentView('overview')} 
+            <AddDonation
+              onCancel={() => setCurrentView('overview')}
               onSuccess={() => {
                 setCurrentView('overview');
-                fetchDonations(); 
-              }} 
+                fetchDonations();
+              }}
             />
           )}
+
           {currentView === 'receipts' && (
-            <DigitalReceipts 
-              donations={donations} 
-              isLoading={isLoading} 
+            <DigitalReceipts
+              donations={donations}
+              isLoading={isLoading}
               onViewReceipt={(id) => {
                 setSelectedDonationId(id);
                 setCurrentView('receipt');
@@ -169,9 +195,9 @@ export default function AdminDashboard() {
           )}
 
           {currentView === 'receipt' && (
-            <Receipt 
-              donationId={selectedDonationId} 
-              onBack={() => setCurrentView('overview')} 
+            <Receipt
+              donationId={selectedDonationId}
+              onBack={() => setCurrentView('overview')}
             />
           )}
 
@@ -180,7 +206,7 @@ export default function AdminDashboard() {
         <div className="print:hidden">
           <Footer />
         </div>
-        
+
       </div>
     </div>
   );

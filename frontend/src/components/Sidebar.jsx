@@ -1,4 +1,35 @@
+import { useState } from 'react'; 
+
 export default function Sidebar({ isOpen, currentView, setCurrentView }) {
+  const handleDonationSubmit = async (e) => {
+    e.preventDefault();
+    
+    const today = new Date().toISOString().split('T')[0];
+
+    try {
+      const response = await fetch('http://localhost:8000/add-donation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', 
+        body: JSON.stringify({
+          amount: parseFloat(amount),
+          date: today
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setMessage({ type: 'success', text: "Donation submitted! It is currently Pending." });
+        setAmount(''); 
+        
+      } else {
+        setMessage({ type: 'error', text: `Error: ${data.detail}` });
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: "System unavailable. Please try again later." });
+    }
+  };
   return (
     <aside className={`bg-[#1A2332] text-white h-full flex flex-col transition-all duration-300 overflow-hidden ${isOpen ? 'w-64' : 'w-0'}`}>
       
@@ -43,6 +74,7 @@ export default function Sidebar({ isOpen, currentView, setCurrentView }) {
         >
           Digital Receipts
         </button>
+        
 
       </nav>
     </aside>

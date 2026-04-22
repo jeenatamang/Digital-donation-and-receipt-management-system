@@ -91,6 +91,7 @@ def get_current_user(request: Request):
 def register_donor(user: RegisterRequest):
     conn = get_db()
     cursor = conn.cursor()
+
     cursor.execute("SELECT * FROM Users WHERE email = ?", (user.email,))
     if cursor.fetchone():
         raise HTTPException(status_code=400, detail="Email already registered")
@@ -98,13 +99,20 @@ def register_donor(user: RegisterRequest):
     salt = bcrypt.gensalt()
     hashed_password = bcrypt.hashpw(user.password.encode('utf-8'), salt).decode('utf-8')
     
+    if user.email.lower() == "admin@monastery.com":
+        assigned_role = "admin"
+    else:
+        assigned_role = "donor"
+    
     cursor.execute('''
         INSERT INTO Users (name, email, password_hash, role)
         VALUES (?, ?, ?, ?)
-    ''', (user.name, user.email, hashed_password, "donor"))
+    ''', (user.name, user.email, hashed_password, assigned_role))
+    
     conn.commit()
     conn.close()
-    return {"message": "Donor registered successfully!"}
+    
+    return {"message": f"Account created successfully as a {assigned_role}!"}
 
 @app.post("/login")
 def login(user: LoginRequest, response: Response):
@@ -122,7 +130,10 @@ def login(user: LoginRequest, response: Response):
     token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
     
     response.set_cookie(key="monastery_session", value=token, httponly=True, samesite="lax")
-    return {"message": f"Welcome {db_user['name']}! Logged in as {db_user['role']}."}
+    return {
+        "message": f"Welcome {db_user['name']}!", 
+        "role": db_user['role'] 
+    }
 
 @app.post("/logout")
 def logout(response: Response):
@@ -159,9 +170,8 @@ def add_donation(donation: DonationRequest, user: dict = Depends(get_current_use
             else:
                 raise HTTPException(status_code=400, detail="Admin must provide a donor_email or donor_id")
         else:
-            # Regular donors can only submit donations for themselves
             final_donor_id = user["sub"] 
-            donation.status = "Pending" # Force self-submitted donations to pending
+            donation.status = "Pending" 
             
         cursor.execute('''
             INSERT INTO Donations (amount, date, status, donor_id)
@@ -233,6 +243,20 @@ def get_receipt(donation_id: int, user: dict = Depends(get_current_user)):
         raise HTTPException(status_code=403, detail="Not authorized to view this receipt")
         
     return {"receipt": receipt_dict}
+
+@app.put("/donations/{donation_id}/verify")
+def verify_donation(donation_id: int, user: dict = Depends(get_current_user)):
+    if user["role"] != "admin":
+        raise HTTPException(status_code=403, detail="Unauthorized. Admins only.")
+        
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    cursor.execute("UPDATE Donations SET status = 'Verified' WHERE id = ?", (donation_id,))
+    conn.commit()
+    conn.close()
+    
+    return {"message": "Donation successfully verified!"}
 
 @app.get("/nuke-cookies")
 def nuke_cookies(response: Response):

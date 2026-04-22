@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; 
 
 export default function AuthPage({ onLoginSuccess }) {
   const [isLogin, setIsLogin] = useState(true);
@@ -7,6 +8,8 @@ export default function AuthPage({ onLoginSuccess }) {
   const [name, setName] = useState('');
   const [message, setMessage] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
+  
+  const navigate = useNavigate(); 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,9 +36,19 @@ export default function AuthPage({ onLoginSuccess }) {
           setName('');
         } else {
           setMessage("Log in successful. Redirecting to dashboard...");
+          localStorage.setItem('userRole', data.role);
+           console.log("Role received:", data.role); // ← add this
+          console.log("Full response:", data);  
           
           setTimeout(() => {
-            if (onLoginSuccess) onLoginSuccess();
+
+            if (onLoginSuccess) onLoginSuccess(); 
+            
+            if (data.role === 'admin') {
+              navigate('/admin-dashboard');
+            } else {
+              navigate('/user-dashboard');
+            }
           }, 1000);
         }
       } else {

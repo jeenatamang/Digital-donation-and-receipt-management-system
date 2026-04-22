@@ -1,25 +1,15 @@
-import { useState, useEffect } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import AuthPage from './pages/AuthPage';
 import AdminDashboard from './pages/AdminDashboard';
+import UserDashboard from './pages/UserDashboard';
 
 export default function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(
-    localStorage.getItem('isLoggedIn') === 'true'
+  return (
+      <Routes>
+        <Route path="/" element={<AuthPage />} />
+        <Route path="/admin-dashboard" element={<AdminDashboard />} />
+        <Route path="/user-dashboard" element={<UserDashboard />} />
+      </Routes>
+    
   );
-
-  const handleLoginSuccess = () => {
-    localStorage.setItem('isLoggedIn', 'true');
-    setIsAuthenticated(true);
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('isLoggedIn');
-    setIsAuthenticated(false);
-  };
-
-  if (isAuthenticated) {
-    return <AdminDashboard onLogout={handleLogout} />;
-  }
-
-  return <AuthPage onLoginSuccess={handleLoginSuccess} />;
 }

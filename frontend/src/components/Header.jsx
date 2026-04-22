@@ -1,6 +1,30 @@
 import logo from "../assets/thupten_dongak_logo.png";
+import { useNavigate } from 'react-router-dom';
 
 export default function Header({ toggleSidebar }) {
+  const navigate = useNavigate();
+  
+  const rawRole = localStorage.getItem('userRole') || 'donor';
+  const roleDisplay = { 'admin': 'Admin', 'donor': 'User' };
+  const displayRole = roleDisplay[rawRole] || 'User';
+
+  const handleLogout = async () => {
+    try {
+      await fetch('http://localhost:8000/logout', { 
+        method: 'POST',
+        credentials: 'include' 
+      });
+      
+      localStorage.removeItem('isLoggedIn');
+      localStorage.removeItem('userRole'); 
+      
+      navigate('/');
+    } catch (error) {
+      console.error("Logout failed", error);
+      navigate('/'); 
+    }
+  };
+
   return (
     <header className="bg-white px-6 py-4 flex items-center justify-between shadow-md relative z-10">
 
@@ -27,10 +51,13 @@ export default function Header({ toggleSidebar }) {
 
       <div className="flex items-center gap-4">
         <span className="text-sm text-gray-500">
-          Logged in as <b className="text-gray-800">Admin</b>
+          Logged in as <b className="text-gray-800">{displayRole}</b>
         </span>
 
-        <button className="border border-red-800 text-red-800 px-3 py-1 rounded text-sm font-semibold hover:bg-red-800 hover:text-white transition">
+        <button 
+          onClick={handleLogout}
+          className="border border-red-800 text-red-800 px-3 py-1 rounded text-sm font-semibold hover:bg-red-800 hover:text-white transition cursor-pointer"
+        >
           Log Out
         </button>
       </div>

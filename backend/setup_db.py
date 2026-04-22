@@ -51,7 +51,11 @@ def create_database():
         VALUES (?, ?, ?, ?)
         ''', ("Super Admin", admin_email, hashed_password, "admin"))
     else:
-        print("Admin account already exists. Skipping seed.")
+        # ✅ FIXED: instead of skipping, we now update the password
+        print("Admin account exists. Updating password to match .env...")
+        cursor.execute('''
+        UPDATE Users SET password_hash = ? WHERE email = ?
+        ''', (hashed_password, admin_email))
 
     conn.commit()
     conn.close()
